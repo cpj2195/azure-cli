@@ -338,6 +338,17 @@ def load_command_table(self, _):
                                  setter_name='_firewall_rule_custom_setter', setter_type=rdbms_custom, setter_arg_name='parameters',
                                  custom_func_name='_firewall_rule_update_custom_func')
 
+    with self.command_group('postgres server migration', postgres_firewall_rule_sdk,
+                            client_factory=cf_postgres_firewall_rules,
+                            custom_command_type=rdbms_custom,
+                            is_experimental=True) as g:
+        g.custom_command('create', 'migration_create_func')
+        g.custom_show_command('show', 'migration_show_func')
+        g.custom_command('list', 'migration_list_func')
+        g.custom_command('update', 'migration_update_func')
+        g.custom_command('delete', 'migration_delete_func')
+        g.custom_command('check-name-availability', 'migration_check_name_availability')
+
     with self.command_group('mariadb server vnet-rule', mariadb_vnet_sdk,
                             client_factory=cf_mariadb_virtual_network_rules_operations, custom_command_type=rdbms_custom) as g:
         g.custom_command('create', '_vnet_rule_create')

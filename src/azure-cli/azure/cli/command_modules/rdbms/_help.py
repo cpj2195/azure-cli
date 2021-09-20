@@ -1252,6 +1252,69 @@ examples:
     text: az postgres server list-skus -l eastus
 """
 
+helps['postgres server migration'] = """
+type: group
+short-summary: Manage migration workflows for version upgrades in PostgreSQL Single Servers.
+"""
+
+helps['postgres server migration create'] = """
+type: command
+short-summary: Create a new migration workflow for a single server.
+examples:
+  - name: Start a migration workflow on the target server identified by the parameters. The configurations of the migration should be specified in the migrationConfig.json file.
+    text: az postgres server migration create --subscription xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --resource-group testGroup --name testServer --properties "migrationConfig.json"
+"""
+
+helps['postgres server migration list'] = """
+type: command
+short-summary: List the migrations of a single server.
+examples:
+  - name: List the currently active migrations of a target single server.
+    text: az postgres server migration list --subscription xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --resource-group testGroup --name testServer --filter Active
+  - name: List all (Active/Completed) migrations of a target single server.
+    text: az postgres server migration list --subscription xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --resource-group testGroup --name testServer --filter All
+"""
+
+helps['postgres server migration show'] = """
+type: command
+short-summary: Get the details of a specific migration.
+examples:
+  - name: Get the details of a specific migration of a target single server.
+    text: az postgres server migration show --subscription xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --resource-group testGroup --name testServer --migration-name xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+"""
+
+helps['postgres server migration update'] = """
+type: command
+short-summary: Update a specific migration.
+examples:
+  - name: Allow the migration workflow to setup logical replication on the source. Note that this command will restart the source server.
+    text: az postgres server migration update --subscription xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --resource-group testGroup --name testServer --migration-name xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --setup-replication
+  - name: Space-separated list of DBs to migrate. A minimum of 1 and a maximum of 8 DBs can be specified. You can migrate more DBs concurrently using additional migrations. Note that each additional DB affects the performance of the source server.
+    text: az postgres server migration update --subscription xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --resource-group testGroup --name testServer --migration-name xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --db-names db1 db2
+  - name: Allow the migration workflow to overwrite the DB on the target.
+    text: az postgres server migration update --subscription xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --resource-group testGroup --name testServer --migration-name xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --overwrite-dbs
+  - name: Cutover the data migration. After this is complete, subsequent updates to the source DB will not be migrated to the target.
+    text: az postgres server migration update --subscription xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --resource-group testGroup --name testServer --migration-name xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --cutover
+  - name: This command helps in starting the data migration immediately between the source and target. Any migration scheduled for a future date and time will be cancelled.
+    text: az postgres server migration update --subscription xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --resource-group testGroup --name testServer --migration-name xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --start-data-migration
+"""
+
+helps['postgres server migration delete'] = """
+type: command
+short-summary: Delete a specific migration.
+examples:
+  - name: Cancel/delete the migration workflow. The migration workflows can be canceled/deleted at any point.
+    text: az postgres server migration delete --subscription xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --resource-group testGroup --name testServer --migration-name xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+"""
+
+helps['postgres server migration check-name-availability'] = """
+type: command
+short-summary: Checks if the provided migration-name can be used.
+examples:
+  - name: Check if the migration-name provided is available for your migration workflow.
+    text: az postgres server migration check-name-availability --subscription xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --resource-group testGroup --name testServer --migration-name xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+"""
+
 helps['mysql server list-skus'] = """
 type: command
 short-summary: List available sku's in the given region.

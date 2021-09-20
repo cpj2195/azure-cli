@@ -46,6 +46,14 @@ def load_arguments(self, _):    # pylint: disable=too-many-statements, too-many-
 
         overriding_none_arg_type = CLIArgumentType(local_context_attribute=LocalContextAttribute(name='context_name', actions=[LocalContextAction.GET]))
 
+        migration_name_arg_type = CLIArgumentType(
+            metavar='NAME',
+            help="Name of the migration.",
+            local_context_attribute=LocalContextAttribute(
+                name='migration_name',
+                actions=[LocalContextAction.SET, LocalContextAction.GET],
+                scopes=['{} server'.format(command_group)]))
+
         with self.argument_context(command_group) as c:
             c.argument('name', options_list=['--sku-name'], required=True)
             c.argument('server_name', arg_type=server_name_arg_type, completer=server_completers[command_group], options_list=['--server-name', '-s'])
@@ -210,6 +218,49 @@ def load_arguments(self, _):    # pylint: disable=too-many-statements, too-many-
             with self.argument_context('{} server upgrade'.format(command_group)) as c:
                 c.argument('target_server_version', options_list=['--target-server-version', '-t'], required=True, help='The server version you want to upgrade your mysql server to, currently only support 5.7.')
 
+        handle_PG_version_upgrades_parameters(command_group, server_name_arg_type, migration_name_arg_type)
+
+    def handle_PG_version_upgrades_parameters(command_group, server_name_arg_type, migration_name_arg_type):
+        for scope in ['create', 'show', 'list', 'update', 'delete', 'check-name-availability']:
+            argument_context_string = '{} server migration {}'.format(command_group, scope)
+            with self.argument_context(argument_context_string) as c:
+                c.argument('resource_group_name', arg_type=resource_group_name_type,
+                           help='Resource Group Name of the migration target server.')
+                c.argument('server_name', id_part='name', options_list=['--name', '-n'], arg_type=server_name_arg_type,
+                           help='Migration target server name.')
+                if scope == "create":
+                    c.argument('properties', type=file_type, completer=FilesCompleter(), options_list=['--properties', '-b'],
+                               help='Request properties. Use double or no quotes to pass in filepath as argument.')
+                    c.argument('migration_name', arg_type=migration_name_arg_type, options_list=['--migration-name'],
+                               help='Name of the migration.')
+                elif scope == "show":
+                    c.argument('migration_name', arg_type=migration_name_arg_type, options_list=['--migration-name'],
+                               help='Name of the migration.')
+                    c.argument('level', options_list=['--level'], required=False,
+                               help='Specify the level of migration details requested. Valid values are Active and All. Active is the default.')
+                elif scope == "list":
+                    c.argument('migration_filter', options_list=['--filter'], required=False,
+                               help='Indicate whether all the migrations or just the Active migrations are returned. Active is the default. Valid values are: Active, All.')
+                elif scope == "update":
+                    c.argument('migration_name', arg_type=migration_name_arg_type, options_list=['--migration-name'],
+                               help='Name of the migration.')
+                    c.argument('setup_logical_replication', options_list=['--setup-replication'], action='store_true', required=False,
+                               help='Allow the migration workflow to setup logical replication on the source. Note that this command will restart the source server.')
+                    c.argument('db_names', nargs='+', options_list=['--db-names', '--dbs'], required=False,
+                               help='Space-separated list of DBs to migrate. A minimum of 1 and a maximum of 8 DBs can be specified. You can migrate more DBs concurrently using additional migrations. Note that each additional DB affects the performance of the source server.')
+                    c.argument('overwrite_dbs', options_list=['--overwrite-dbs'], action='store_true', required=False,
+                               help='Allow the migration workflow to overwrite the DB on the target.')
+                    c.argument('cutover', options_list=['--cutover'], action='store_true', required=False,
+                               help='Cut-over the data migration. After this is complete, subsequent updates to the source DB will not be migrated to the target.')
+                    c.argument('start_data_migration', options_list=['--start-data-migration'], action='store_true', required=False,
+                               help='Reschedule the data migration to start right now.')
+                elif scope == "delete":
+                    c.argument('migration_name', arg_type=migration_name_arg_type, options_list=['--migration-name'],
+                               help='Name of the migration.')
+                    c.argument('yes', options_list=['--yes', '-y'], action='store_true', help='Do not prompt for confirmation.')
+                elif scope == "check-name-availability":
+                    c.argument('migration_name', arg_type=migration_name_arg_type, options_list=['--migration-name'],
+                               help='Name of the migration.')
     _complex_params('mariadb')
     _complex_params('mysql')
     _complex_params('postgres')
