@@ -82,7 +82,7 @@ def migration_show_func(cmd, client, resource_group_name, server_name, migration
 
     subscription_id = get_subscription_id(cmd.cli_ctx)
 
-    r = send_raw_request(cmd.cli_ctx, "get", "https://api-dogfood.resources.windows-int.net:443/subscriptions/{}/resourceGroups/{}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{}/migrations/{}?level={}&api-version=2022-05-01-privatepreview".format(subscription_id, resource_group_name, server_name, migration_name, level))
+    r = send_raw_request(cmd.cli_ctx, "get", "https://api-dogfood.resources.windows-int.net:443/subscriptions/{}/resourceGroups/{}/providers/Microsoft.DBforPostgreSQL/flexibleServers/{}/migrations/{}?api-version=2022-05-01-privatepreview".format(subscription_id, resource_group_name, server_name, migration_name))
 
     return r.json()
 
